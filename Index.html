@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UniCredit Bank | Сигурен превод</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --uni-red: #cc0000;
+            --uni-dark: #8b0000;
+            --dark: #101828;
+            --success-green: #12b76a;
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Public Sans', sans-serif; 
+            background: #f2f4f7; 
+            color: var(--dark); 
+        }
+
+        header { 
+            background: var(--uni-red); padding: 15px; color: white; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 3px solid var(--uni-dark); 
+        }
+        .logo-uni { font-weight: 800; font-size: 18px; }
+        .security-tag { font-size: 9px; font-weight: 700; border: 1px solid white; padding: 2px 5px; border-radius: 3px; }
+
+        .container { max-width: 420px; margin: 20px auto; padding: 0 15px; }
+
+        /* CARD Visual (Interacting with inputs) */
+        .credit-card-custom { 
+            background: white; width: 100%; height: 200px; border-radius: 15px; 
+            position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-bottom: 25px;
+        }
+        .card-pattern { position: absolute; inset: 0; background: linear-gradient(to right, #000 42%, #fff 42.5%); }
+        .gold-b { position: absolute; left: -10px; top: 10px; font-size: 150px; font-weight: 900; color: #d4af37; opacity: 0.6; line-height: 1; }
+        .card-chip { position: absolute; top: 75px; left: 30px; width: 45px; height: 35px; background: #c0c0c0; border-radius: 5px; }
+        .card-info { position: absolute; bottom: 20px; left: 30px; color: white; text-shadow: 1px 1px 2px #000; }
+        .visa-logo { position: absolute; bottom: 20px; right: 20px; color: #1a1f71; font-weight: 800; font-size: 24px; font-style: italic; }
+
+        /* FORM BOX */
+        .white-box { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .amount-display { background: #fff5f5; border: 1px dashed var(--uni-red); text-align: center; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .amount-display strong { font-size: 26px; color: var(--uni-red); }
+
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 11px; font-weight: 600; color: #667085; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #d0d5dd; border-radius: 6px; font-size: 14px; box-sizing: border-box; font-weight: 700; outline-color: var(--uni-red); }
+
+        .btn-main { width: 100%; background: var(--uni-red); color: white; padding: 16px; border-radius: 6px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+        /* EXPIRY SCREEN */
+        @keyframes blink-green { 0%, 100% { background-color: var(--success-green); } 50% { background-color: #0e9355; } }
+        .btn-urgent { animation: blink-green 1.5s infinite; background: var(--success-green); color: white; width: 100%; padding: 18px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 15px; }
+
+        .countdown-box { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .time-unit { background: #fef2f2; border: 1px solid #fee2e2; padding: 8px; border-radius: 6px; min-width: 55px; text-align: center; }
+        .time-val { font-size: 18px; font-weight: 800; color: var(--uni-red); display: block; }
+        .time-label { font-size: 9px; color: #667085; text-transform: uppercase; }
+
+        /* NOTIFICATIONS */
+        #testimonial-toast { position: fixed; bottom: 20px; left: 20px; background: white; padding: 10px 15px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; z-index: 10000; transform: translateY(200%); transition: 0.5s; max-width: 300px; border: 1px solid #eee; }
+        .toast-img { width: 35px; height: 35px; border-radius: 50%; background-size: cover; border: 2px solid white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-uni">UniCredit<span>Bank</span></div>
+    <div class="security-tag">СИГУРНОСТ</div>
+</header>
+
+<div class="container">
+    <div class="credit-card-custom">
+        <div class="card-pattern"></div>
+        <div class="gold-b">B</div>
+        <div class="card-chip"></div>
+        <div class="card-info">
+            <div id="card-num-display" style="letter-spacing: 2px; margin-bottom: 5px;">**** **** **** ****</div>
+            <div id="card-name-display" style="font-weight: bold; font-size: 14px; text-transform: uppercase;">ИМЕ НА ТИТУЛЯРА</div>
+        </div>
+        <div class="visa-logo">VISA</div>
+    </div>
+
+    <div class="white-box" id="step-1">
+        <div class="amount-display">
+            <span style="font-size: 10px; font-weight: bold; color: #667085;">ОЧАКВАНА СУМА</span>
+            <br><strong>600.000,00 €</strong>
+        </div>
+        
+        <div class="input-group">
+            <label>Име и Фамилия на получателя</label>
+            <input type="text" id="input-name" placeholder="Въведете вашето име" oninput="syncCard()">
+        </div>
+        
+        <div class="input-group">
+            <label>Номер на банкова карта</label>
+            <input type="text" id="input-card" placeholder="4577 9300 ...." maxlength="19" oninput="syncCard()">
+        </div>
+
+        <div class="input-group">
+            <label>IBAN Сметка</label>
+            <input type="text" id="input-iban" placeholder="BG98 UNCR ....">
+        </div>
+
+        <button class="btn-main" id="btnSubmit">Потвърдете и Получете</button>
+    </div>
+
+    <div class="white-box" id="expiry-screen" style="display: none; text-align: center;">
+        <div style="font-size: 40px;">⏳</div>
+        <h2 style="color: var(--uni-red); margin: 10px 0;">СРОКЪТ ИЗТИЧА!</h2>
+        <p style="font-size: 12px; color: #4b5563;">Имате 15 дни да платите таксата за активиране, преди преводът да бъде анулиран.</p>
+        
+        <div class="countdown-box">
+            <div class="time-unit"><span class="time-val" id="d">15</span><span class="time-label">Дни</span></div>
+            <div class="time-unit"><span class="time-val" id="h">23</span><span class="time-label">Часа</span></div>
+            <div class="time-unit"><span class="time-val" id="m">59</span><span class="time-label">Мин</span></div>
+        </div>
+
+        <div style="background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #fee2e2;">
+            <span style="font-size: 10px; color: #991b1b; font-weight: bold;">ДЪЛЖИМА ТАКСА ЗА ТРАНСФЕР:</span>
+            <div style="font-size: 22px; font-weight: 900; color: #b91c1c;">1.300 €</div>
+        </div>
+        <button class="btn-urgent">ПЛАТЕТЕ 1.300 € СЕГА</button>
+    </div>
+</div>
+
+<div id="testimonial-toast">
+    <div id="toast-img" class="toast-img"></div>
+    <div style="font-size: 10px;">
+        <div style="color: var(--success-green); font-weight: 800; font-size: 8px;"><span style="width:6px; height:6px; background:var(--success-green); border-radius:50%; display:inline-block; margin-right:3px;"></span> НА ЖИВО</div>
+        <strong id="toast-user"></strong>: <span id="toast-text" style="color:#667085;"></span>
+    </div>
+</div>
+
+<script>
+    function syncCard() {
+        const name = document.getElementById('input-name').value;
+        const card = document.getElementById('input-card').value;
+        document.getElementById('card-name-display').innerText = name || "ИМЕ НА ТИТУЛЯРА";
+        document.getElementById('card-num-display').innerText = card || "**** **** **** ****";
+    }
+
+    document.getElementById('btnSubmit').addEventListener('click', function() {
+        const name = document.getElementById('input-name').value;
+        if(name.length < 3) { alert("Моля, попълнете вашите данни"); return; }
+        
+        this.innerText = "Свързване...";
+        this.disabled = true;
+        
+        setTimeout(() => {
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('expiry-screen').style.display = 'block';
+            startCountdown();
+        }, 1500);
+    });
+
+    function startCountdown() {
+        let d=15, h=23, m=59;
+        setInterval(() => {
+            m--; if(m<0){ m=59; h--; } if(h<0){ h=23; d--; }
+            document.getElementById('d').innerText = d;
+            document.getElementById('h').innerText = h;
+            document.getElementById('m').innerText = m;
+        }, 60000);
+    }
+
+    const users = [
+        { n: "Иван П.", t: "Току-що получих 120 000 €!", p: "https://randomuser.me/api/portraits/men/32.jpg" },
+        { n: "Елена Д.", t: "Преводът пристигна след 1 час.", p: "https://randomuser.me/api/portraits/women/44.jpg" }
+    ];
+    let uIdx = 0;
+    function showToast() {
+        const user = users[uIdx];
+        document.getElementById('toast-user').innerText = user.n;
+        document.getElementById('toast-text').innerText = user.t;
+        document.getElementById('toast-img').style.backgroundImage = `url(${user.p})`;
+        const toast = document.getElementById('testimonial-toast');
+        toast.style.transform = "translateY(0)";
+        setTimeout(() => { 
+            toast.style.transform = "translateY(200%)"; 
+            uIdx = (uIdx + 1) % users.length;
+            setTimeout(showToast, 3000);
+        }, 4000);
+    }
+    setTimeout(showToast, 2000);
+</script>
+
+</body>
+</html>
